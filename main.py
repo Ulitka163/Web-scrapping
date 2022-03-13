@@ -15,21 +15,24 @@ HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36'
 }
 
-response = requests.get(url, headers=HEADERS)
-response.raise_for_status()
-text = response.text
+KEYWORDS = ['дизайн', 'фото', 'web', 'python', 'Команда', 'iOS']
 
-KEYWORDS = ['дизайн', 'фото', 'web', 'python']
+def resp(url, HEADERS):
+    response = requests.get(url, headers=HEADERS)
+    response.raise_for_status()
+    text = response.text
+    return bs4.BeautifulSoup(text, features='html.parser')
 
-soup = bs4.BeautifulSoup(text, features='html.parser')
-articles = soup.find_all(class_='tm-article-snippet')
+if __name__ == '__main__':
+    soup = resp(url, HEADERS)
+    articles = soup.find_all(class_='tm-article-snippet')
 
-for article in articles:
-    article_text = article.text.split()
-    for key in KEYWORDS:
-        if key in article_text:
-            date_time = article.find(class_='tm-article-snippet__datetime-published').find('time').attrs['title']
-            article_header = article.find(class_='tm-article-snippet__title-link').find('span').text
-            article_url = article.find(class_='tm-article-snippet__title-link').attrs['href']
-            print(f'<{date_time}> - <{article_header}> - <https://habr.com{article_url}>')
+    for article in articles:
+        article_text = article.text.split()
+        for key in KEYWORDS:
+            if key in article_text:
+                date_time = article.find(class_='tm-article-snippet__datetime-published').find('time').attrs['title']
+                article_header = article.find(class_='tm-article-snippet__title-link').find('span').text
+                article_url = article.find(class_='tm-article-snippet__title-link').attrs['href']
+                print(f'<{date_time}> - <{article_header}> - <https://habr.com{article_url}>')
 
